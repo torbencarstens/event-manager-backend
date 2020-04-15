@@ -210,6 +210,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "event_manager"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "derive_builder",
+ "diesel",
+ "juniper",
+ "juniper_rocket",
+ "rand",
+ "rocket",
+ "rocket_contrib",
+ "rocket_http",
+ "serde",
+ "url 2.1.1",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -632,23 +649,6 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "winapi 0.3.8",
-]
-
-[[package]]
-name = "event_manager"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "derive_builder",
- "diesel",
- "juniper",
- "juniper_rocket",
- "rand",
- "rocket",
- "rocket_contrib",
- "rocket_http",
- "serde",
- "url 2.1.1",
 ]
 
 [[package]]
