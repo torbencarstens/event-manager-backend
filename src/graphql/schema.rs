@@ -1,7 +1,7 @@
 use juniper::{FieldError, FieldResult, IntoFieldError};
 
 use crate::database::{self, Constraints, Location, Organizer, QueryBuilder};
-use crate::graphql::{Context, MutationRoot, QueryRoot, GraphQLError};
+use crate::graphql::{Context, GraphQLError, MutationRoot, QueryRoot};
 use crate::graphql::inputs::{EventInput, LocationInput, OrganizerInput};
 use crate::graphql::queries::{EventQuery, LocationQuery, OrganizerQuery};
 use crate::models;
@@ -15,7 +15,7 @@ impl IntoFieldError for GraphQLError {
 }
 
 
-#[juniper::object (Context = Context)]
+#[juniper::object(Context = Context)]
 impl QueryRoot {
     fn event(context: &Context, query: Option<EventQuery>) -> FieldResult<Vec<models::Event>> {
         match query {
@@ -54,7 +54,7 @@ impl QueryRoot {
     }
 }
 
-#[juniper::object (Context = Context)]
+#[juniper::object(Context = Context)]
 impl MutationRoot {
     fn event(context: &Context, input: EventInput) -> FieldResult<models::Event> {
         input
