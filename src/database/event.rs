@@ -111,17 +111,7 @@ impl Event {
                 .ok()?
                 .pop());
 
-        Ok(models::Event {
-            id: event.id,
-            name: event.name,
-            description: event.description,
-            timestamp: GraphQLi64(event.timestamp.timestamp()),
-            timestamp_end: GraphQLi64(event.timestamp_end.timestamp()),
-            price: event.price,
-            currency: event.currency,
-            location,
-            organizer,
-        })
+        Ok(Event::from_database_join((event, location, organizer)))
     }
 
     pub(crate) fn from_database_join((event, location, organizer): (Event, Location, Option<Organizer>)) -> models::Event {
