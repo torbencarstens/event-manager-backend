@@ -24,7 +24,7 @@ impl QueryRoot {
                     .into_builder(&context.connection.0)
                     .execute()
             }
-            None => database::Event::get(Constraints::default(), &context.connection.0)
+            None => database::Event::create_query_builder(Constraints::default(), &context.connection.0).execute()
         }
             .map_err(Into::into)
     }
