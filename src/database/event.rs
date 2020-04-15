@@ -89,6 +89,7 @@ impl<'a> QueryBuilder for EventQueryBuilder<'a> {
         let connection = self.connection;
 
         self.query
+            .order((timestamp.asc(), timestamp_end.asc()))
             .load::<Event>(connection)?
             .into_iter()
             .map(|event| Event::from_database_event(event, connection))
