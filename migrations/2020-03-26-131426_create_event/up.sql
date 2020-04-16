@@ -10,6 +10,7 @@ CREATE TABLE events
     location_id   INTEGER                   NOT NULL,
     organizer_id  INTEGER,
     CONSTRAINT check_timestamp CHECK (timestamp > '1970-01-01 00:00:00+0'),
+    CONSTRAINT ends_after_start CHECK (timestamp < timestamp_end),
     CONSTRAINT check_price CHECK ((price IS NOT NULL AND currency IS NOT NULL) OR
                                   (price IS NULL AND currency IS NULL)),
     FOREIGN KEY (location_id) REFERENCES locations (id),
