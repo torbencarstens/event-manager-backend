@@ -94,7 +94,7 @@ impl Mockable for Location {
             name: random_lowercase(16),
             website: wrap_random(random_website),
             street: random_lowercase(16),
-            street_number: random_i32(),
+            street_number: random_i32().abs(),
             city: random_lowercase(16),
             postal_code: random_postal_code(), // generates a 5 digit postal code
             country: random_lowercase(8),
