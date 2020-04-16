@@ -18,8 +18,8 @@ pub(crate) struct LocationQuery {
 }
 
 impl<'a> LocationQuery {
-    pub(crate) fn into_builder(self, connection: &'a diesel::PgConnection) -> LocationQueryBuilder<'a> {
-        let mut builder = database::Location::create_query_builder(Constraints::default(), connection);
+    pub(crate) fn into_builder(self, constraints: Constraints, connection: &'a diesel::PgConnection) -> LocationQueryBuilder<'a> {
+        let mut builder = database::Location::create_query_builder(constraints, connection);
 
         if let Some(id) = self.id {
             builder = builder.with_id(id);

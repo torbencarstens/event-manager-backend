@@ -17,38 +17,44 @@ impl IntoFieldError for GraphQLError {
 
 #[juniper::object(Context = Context)]
 impl QueryRoot {
-    fn event(context: &Context, query: Option<EventQuery>) -> FieldResult<Vec<models::Event>> {
+    fn event(context: &Context, constraints: Option<Constraints>, query: Option<EventQuery>) -> FieldResult<Vec<models::Event>> {
+        let constraints = constraints.unwrap_or_default();
+
         match query {
             Some(query) => {
                 query
-                    .into_builder(&context.connection.0)
+                    .into_builder(constraints, &context.connection.0)
                     .execute()
             }
-            None => database::Event::create_query_builder(Constraints::default(), &context.connection.0).execute()
+            None => database::Event::create_query_builder(constraints, &context.connection.0).execute()
         }
             .map_err(Into::into)
     }
 
-    fn location(context: &Context, query: Option<LocationQuery>) -> FieldResult<Vec<Location>> {
+    fn location(context: &Context, constraints: Option<Constraints>, query: Option<LocationQuery>) -> FieldResult<Vec<Location>> {
+        let constraints = constraints.unwrap_or_default();
+
         match query {
             Some(query) => {
                 query
-                    .into_builder(&context.connection.0)
+                    .into_builder(constraints, &context.connection.0)
                     .execute()
             }
-            None => Location::get(Constraints::default(), &context.connection.0)
+            None => Location::get(constraints, &context.connection.0)
         }
             .map_err(Into::into)
     }
 
-    fn organizer(context: &Context, query: Option<OrganizerQuery>) -> FieldResult<Vec<Organizer>> {
+    fn organizer(context: &Context, constraints: Option<Constraints>, query: Option<OrganizerQuery>) -> FieldResult<Vec<Organizer>> {
+        let constraints = constraints.unwrap_or_default();
+
         match query {
             Some(query) => {
                 query
-                    .into_builder(&context.connection.0)
+                    .into_builder(constraints, &context.connection.0)
                     .execute()
             }
-            None => Organizer::get(Constraints::default(), &context.connection.0)
+            None => Organizer::get(constraints, &context.connection.0)
         }
             .map_err(Into::into)
     }

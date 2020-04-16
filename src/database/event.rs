@@ -132,8 +132,8 @@ impl Event {
         Ok(events::table
             .inner_join(crate::database::schema::locations::table)
             .left_join(crate::database::schema::organizers::table)
-            .limit(constraints.limit)
-            .offset(constraints.offset)
+            .limit(constraints.limit.0)
+            .offset(constraints.offset.0)
             .load::<(Event, Location, Option<Organizer>)>(connection)?
             .into_iter()
             .map(Event::from_database_join)
@@ -143,8 +143,8 @@ impl Event {
     pub(crate) fn create_query_builder(constraints: Constraints, connection: &diesel::PgConnection) -> EventQueryBuilder {
         EventQueryBuilder {
             query: events::table
-                .limit(constraints.limit)
-                .offset(constraints.offset)
+                .limit(constraints.limit.0)
+                .offset(constraints.offset.0)
                 .into_boxed(),
             connection,
         }
