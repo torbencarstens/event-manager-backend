@@ -1,7 +1,7 @@
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
 
-use chrono::NaiveDateTime;
+use chrono::{Duration, NaiveDateTime, Utc};
 use diesel::expression::helper_types::Or;
 use rand::Rng;
 
@@ -81,8 +81,14 @@ fn random_optional_string(n: u16) -> Option<String> {
     }
 }
 
-fn random_date_time() -> NaiveDateTime {
-    NaiveDateTime::from_timestamp(rand::random::<u32>() as i64, 0)
+fn random_duration(min: i64, max: i64) -> Duration {
+    let max_one_day = (random_i64().abs() % (max - min)) + min;
+    Duration::seconds(max_one_day)
+}
+
+fn random_date_time(min_timestamp: i64, max_timestamp: i64) -> NaiveDateTime {
+    let timestamp = (random_i64().abs() % (max_timestamp - min_timestamp)) + min_timestamp;
+    NaiveDateTime::from_timestamp(timestamp, 0)
 }
 
 impl Mockable for Location {
@@ -117,12 +123,13 @@ impl Mockable for Event {
         };
 
         let price = wrap_random(random_i32);
+        let timestamp = random_date_time(Utc::now().timestamp(), 86400i64 * 5i64);
         Some(Event {
             id: -1,
             name: random_lowercase(16),
             description: random_string((random_range(0, 255) as u16 * random_range(0, 255) as u16) % 1024),
-            timestamp: random_date_time(),
-            timestamp_end: random_date_time(),
+            timestamp,
+            timestamp_end: timestamp + random_duration(3600, 86400),
             price,
             currency: price.and_then(|_| Some(random_uppercase(3))),
             location_id,
