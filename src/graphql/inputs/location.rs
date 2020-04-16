@@ -9,6 +9,7 @@ pub struct LocationInput {
     pub(crate) street_number: i32,
     pub(crate) city: String,
     pub(crate) postal_code: i32,
+    pub(crate) country: String,
     pub(crate) building: Option<String>,
     pub(crate) maps_link: String,
 }
@@ -33,6 +34,9 @@ impl LocationInput {
         }
         if self.city.is_empty() {
             error = Some("city");
+        }
+        if self.country.is_empty() {
+            error = Some("country");
         }
 
         if let Some(field_name) = error {
@@ -60,6 +64,7 @@ impl Into<Location> for LocationInput {
             street_number: self.street_number,
             city: self.city,
             postal_code: self.postal_code,
+            country: self.country,
             building: self.building,
             maps_link: self.maps_link,
         }

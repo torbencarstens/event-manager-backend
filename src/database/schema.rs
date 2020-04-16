@@ -21,6 +21,7 @@ table! {
         street_number -> Int4,
         city -> Text,
         postal_code -> Int4,
+        country -> Text,
         building -> Nullable<Text>,
         maps_link -> Text,
     }

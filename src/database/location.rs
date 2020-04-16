@@ -18,6 +18,7 @@ pub struct Location {
     pub(crate) street_number: i32,
     pub(crate) city: String,
     pub(crate) postal_code: i32,
+    pub(crate) country: String,
     pub(crate) building: Option<String>,
     pub(crate) maps_link: String,
 }
@@ -60,6 +61,11 @@ impl<'a> LocationQueryBuilder<'a> {
 
     pub fn with_postal_code(mut self, code: i32) -> LocationQueryBuilder<'a> {
         self.query = self.query.filter(postal_code.eq(code));
+        self
+    }
+
+    pub fn with_country(mut self, country_name: String) -> LocationQueryBuilder<'a> {
+        self.query = self.query.filter(country.eq(country_name));
         self
     }
 
@@ -110,6 +116,7 @@ impl Location {
                 street_number.eq(self.street_number),
                 city.eq(self.city),
                 postal_code.eq(self.postal_code),
+                country.eq(self.country),
                 building.eq(self.building),
                 maps_link.eq(self.maps_link)
             )])

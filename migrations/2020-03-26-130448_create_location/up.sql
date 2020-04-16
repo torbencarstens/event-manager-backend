@@ -7,6 +7,7 @@ CREATE TABLE locations
     street_number INTEGER                   NOT NULL,
     city          TEXT                      NOT NULL,
     postal_code   INTEGER                   NOT NULL,
+    country       TEXT                      NOT NULL,
     building      TEXT,
     maps_link     TEXT                      NOT NULL,
     UNIQUE (name, street, street_number),

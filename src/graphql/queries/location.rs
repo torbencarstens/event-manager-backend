@@ -12,6 +12,7 @@ pub(crate) struct LocationQuery {
     pub(crate) street_number: Option<i32>,
     pub(crate) city: Option<String>,
     pub(crate) postal_code: Option<i32>,
+    pub(crate) country: Option<String>,
     pub(crate) building: Option<String>,
     pub(crate) maps_link: Option<String>,
 }
@@ -40,6 +41,9 @@ impl<'a> LocationQuery {
         }
         if let Some(postal_code) = self.postal_code {
             builder = builder.with_postal_code(postal_code);
+        }
+        if let Some(country) = self.country {
+            builder = builder.with_country(country);
         }
         if let Some(building) = self.building {
             builder = builder.with_building(building);

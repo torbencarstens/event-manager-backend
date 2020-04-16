@@ -91,12 +91,13 @@ impl Mockable for Location {
     fn mock(extra_data: Option<HashMap<String, i32, RandomState>>) -> Option<Self::Item> {
         Some(Location {
             id: -1,
-            name: random_string(16),
+            name: random_lowercase(16),
             website: wrap_random(random_website),
-            street: random_string(16),
+            street: random_lowercase(16),
             street_number: random_i32(),
-            city: random_string(16),
+            city: random_lowercase(16),
             postal_code: random_postal_code(), // generates a 5 digit postal code
+            country: random_lowercase(8),
             building: random_optional_string(random_range(2, 32) as u16),
             maps_link: random_website(),
         })
@@ -118,7 +119,7 @@ impl Mockable for Event {
         let price = wrap_random(random_i32);
         Some(Event {
             id: -1,
-            name: random_string(16),
+            name: random_lowercase(16),
             description: random_string((random_range(0, 255) as u16 * random_range(0, 255) as u16) % 1024),
             timestamp: random_date_time(),
             timestamp_end: random_date_time(),
