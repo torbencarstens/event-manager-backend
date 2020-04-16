@@ -123,13 +123,14 @@ impl Mockable for Event {
         };
 
         let price = wrap_random(random_i32);
-        let timestamp = random_date_time(Utc::now().timestamp(), 86400i64 * 5i64);
+        let initial_timestamp = Utc::now().timestamp();
+        let timestamp = random_date_time(initial_timestamp, initial_timestamp + (86400i64 * 14i64));
         Some(Event {
             id: -1,
             name: random_lowercase(16),
             description: random_string((random_range(0, 255) as u16 * random_range(0, 255) as u16) % 1024),
             timestamp,
-            timestamp_end: timestamp + random_duration(3600, 86400),
+            timestamp_end: timestamp + random_duration(3600, 38200),
             price,
             currency: price.and_then(|_| Some(random_uppercase(3))),
             location_id,
