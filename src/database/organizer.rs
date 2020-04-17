@@ -46,6 +46,12 @@ impl<'a> QueryBuilder for OrganizerQueryBuilder<'a> {
 }
 
 impl Organizer {
+    pub(crate) fn count(connection: &diesel::PgConnection) -> DieselResult<i64> {
+        organizers::table
+            .select(diesel::dsl::count(id))
+            .first(connection)
+    }
+
     pub(crate) fn get(constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<Vec<Organizer>> {
         organizers::table
             .limit(constraints.limit.0)

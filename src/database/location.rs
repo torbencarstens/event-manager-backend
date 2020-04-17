@@ -90,6 +90,12 @@ impl<'a> QueryBuilder for LocationQueryBuilder<'a> {
 }
 
 impl Location {
+    pub(crate) fn count(connection: &diesel::PgConnection) -> DieselResult<i64> {
+        locations::table
+            .select(diesel::dsl::count(id))
+            .first(connection)
+    }
+
     pub(crate) fn get(constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<Vec<Location>> {
         locations::table
             .limit(constraints.limit.0)

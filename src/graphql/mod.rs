@@ -24,6 +24,13 @@ pub struct Constraints {
     pub(crate) offset: GraphQLi64,
 }
 
+#[derive(GraphQLObject)]
+pub struct Pagination {
+    event_count: GraphQLi64,
+    location_count: GraphQLi64,
+    organizer_count: GraphQLi64,
+}
+
 impl Default for Constraints {
     fn default() -> Self {
         Constraints {

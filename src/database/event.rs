@@ -98,6 +98,12 @@ impl<'a> QueryBuilder for EventQueryBuilder<'a> {
 }
 
 impl Event {
+    pub(crate) fn count(connection: &diesel::PgConnection) -> DieselResult<i64> {
+        events::table
+            .select(diesel::dsl::count(id))
+            .first(connection)
+    }
+
     pub(crate) fn from_database_event(event: Event, connection: &diesel::PgConnection) -> DieselResult<models::Event> {
         let location = Location::create_query_builder(Constraints::default(), connection)
             .with_id(event.location_id)

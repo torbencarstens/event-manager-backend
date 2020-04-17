@@ -1,7 +1,8 @@
 use juniper::{FieldError, FieldResult, IntoFieldError};
 
 use crate::database::{self, Constraints, Location, Organizer, QueryBuilder};
-use crate::graphql::{Context, GraphQLError, MutationRoot, QueryRoot};
+use crate::graphql::{Context, GraphQLError, MutationRoot, Pagination, QueryRoot};
+use crate::graphql::graphqli64::GraphQLi64;
 use crate::graphql::inputs::{EventInput, LocationInput, OrganizerInput};
 use crate::graphql::queries::{EventQuery, LocationQuery, OrganizerQuery};
 use crate::models;
@@ -57,6 +58,20 @@ impl QueryRoot {
             None => Organizer::get(constraints, &context.connection.0)
         }
             .map_err(Into::into)
+    }
+
+    fn pagination(context: &Context) -> FieldResult<Pagination> {
+        let event_count = GraphQLi64(database::Event::count(&context.connection.0)?);
+        let location_count = GraphQLi64(database::Location::count(&context.connection.0)?);
+        let organizer_count = GraphQLi64(database::Organizer::count(&context.connection.0)?);
+
+        Ok(
+            Pagination {
+                event_count,
+                location_count,
+                organizer_count,
+            }
+        )
     }
 }
 
