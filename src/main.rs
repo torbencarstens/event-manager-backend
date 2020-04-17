@@ -23,7 +23,7 @@ fn main() {
         .filter(|arg| arg.contains("populate"))
         .next()
         .is_some() {
-        println!("{:#?}", event_manager::mock(10, &connection));
+        println!("{:#?}", event_manager::mock(300, &connection));
         return ();
     }
 
