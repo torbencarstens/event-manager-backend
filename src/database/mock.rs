@@ -12,7 +12,7 @@ use crate::database::Organizer;
 pub(crate) trait Mockable {
     type Item;
 
-    fn mock(extra_data: Option<HashMap<String, i32>>) -> Option<Self::Item>;
+    fn mock(extra_data: Option<HashMap<String, Vec<i32>>>) -> Option<Self::Item>;
 }
 
 fn wrap_random<T: Sized, F>(random: F) -> Option<T>
@@ -94,7 +94,7 @@ fn random_date_time(min_timestamp: i64, max_timestamp: i64) -> NaiveDateTime {
 impl Mockable for Location {
     type Item = Location;
 
-    fn mock(extra_data: Option<HashMap<String, i32, RandomState>>) -> Option<Self::Item> {
+    fn mock(extra_data: Option<HashMap<String, Vec<i32>, RandomState>>) -> Option<Self::Item> {
         Some(Location {
             id: -1,
             name: random_lowercase(16),
@@ -113,12 +113,15 @@ impl Mockable for Location {
 impl Mockable for Event {
     type Item = Event;
 
-    fn mock(extra_data: Option<HashMap<String, i32, RandomState>>) -> Option<Self::Item> {
+    fn mock(extra_data: Option<HashMap<String, Vec<i32>, RandomState>>) -> Option<Self::Item> {
         let extra_data = extra_data?;
-        let location_id = *extra_data.get("location_id")? as i32;
-        let organizer_id = extra_data.get("organizer_id").and_then(|x| Some(*x as i32));
+        let locations = extra_data.get("locations")?;
+        let location_id: i32 = *locations.get(random_range(0, locations.len() as u8) as usize)?;
+
+        let organizers = extra_data.get("organizers")?;
+        let organizer_id: i32 = *organizers.get(random_range(0, locations.len() as u8) as usize)?;
         let organizer_id = match random_bool() {
-            true => organizer_id,
+            true => Some(organizer_id),
             false => None
         };
 
@@ -142,7 +145,7 @@ impl Mockable for Event {
 impl Mockable for Organizer {
     type Item = Organizer;
 
-    fn mock(extra_data: Option<HashMap<String, i32, RandomState>>) -> Option<Self::Item> {
+    fn mock(extra_data: Option<HashMap<String, Vec<i32>, RandomState>>) -> Option<Self::Item> {
         Some(Organizer {
             id: -1,
             name: random_string(16),
