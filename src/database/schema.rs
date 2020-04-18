@@ -35,6 +35,14 @@ table! {
     }
 }
 
+table! {
+    tags (id) {
+        id -> Int4,
+        name -> Varchar,
+        description -> Nullable<Text>,
+    }
+}
+
 joinable!(events -> locations (location_id));
 joinable!(events -> organizers (organizer_id));
 

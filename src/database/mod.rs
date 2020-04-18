@@ -2,6 +2,7 @@ pub(crate) use event::Event;
 pub(crate) use location::Location;
 pub(crate) use organizer::Organizer;
 pub use primary::PrimaryDb;
+pub(crate) use tag::Tag;
 
 use crate::graphql::graphqli64::GraphQLi64;
 
@@ -10,6 +11,7 @@ pub(crate) mod location;
 pub(crate) mod mock;
 pub(crate) mod organizer;
 pub(crate) mod schema;
+pub(crate) mod tag;
 mod primary;
 
 pub(crate) type DieselResult<T> = Result<T, diesel::result::Error>;

@@ -18,7 +18,7 @@ use chrono::NaiveDateTime;
 use diesel::PgConnection;
 use diesel::result::Error;
 
-use crate::database::{Constraints, DieselResult, Organizer, QueryBuilder};
+use crate::database::{Constraints, DieselResult, Organizer, QueryBuilder, Tag};
 use crate::database::event::Event;
 use crate::database::location::Location;
 use crate::database::mock::Mockable;
@@ -44,6 +44,12 @@ pub fn return_all_organizers(connection: &diesel::PgConnection) -> DieselResult<
 pub fn mock(amount: u16, connection: &diesel::PgConnection) -> DieselResult<()> {
     let mut location_ids = vec![];
     let mut organizer_ids = vec![];
+    let mut tag_ids = vec![];
+
+    for _ in 0..10 {
+        let tag = Tag::mock(None).unwrap().insert(connection)?;
+        tag_ids.push(tag.id);
+    }
 
     for _ in 0..(amount / 3) {
         let location = Location::mock(None).unwrap().insert(connection)?;

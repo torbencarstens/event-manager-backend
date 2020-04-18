@@ -5,9 +5,9 @@ use chrono::{Duration, NaiveDateTime, Utc};
 use diesel::expression::helper_types::Or;
 use rand::Rng;
 
+use crate::database::{Organizer, Tag};
 use crate::database::event::Event;
 use crate::database::location::Location;
-use crate::database::Organizer;
 
 pub(crate) trait Mockable {
     type Item;
@@ -150,6 +150,18 @@ impl Mockable for Organizer {
             id: -1,
             name: random_string(16),
             website: wrap_random(random_website),
+        })
+    }
+}
+
+impl Mockable for Tag {
+    type Item = Tag;
+
+    fn mock(extra_data: Option<HashMap<String, Vec<i32>, RandomState>>) -> Option<Self::Item> {
+        Some(Tag {
+            id: -1,
+            name: random_string(16),
+            description: random_optional_string(512),
         })
     }
 }

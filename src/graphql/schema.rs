@@ -1,10 +1,10 @@
 use juniper::{FieldError, FieldResult, IntoFieldError};
 
-use crate::database::{self, Constraints, Location, Organizer, QueryBuilder};
+use crate::database::{self, Constraints, Location, Organizer, QueryBuilder, Tag};
 use crate::graphql::{Context, GraphQLError, MutationRoot, Pagination, QueryRoot};
 use crate::graphql::graphqli64::GraphQLi64;
-use crate::graphql::inputs::{EventInput, LocationInput, OrganizerInput};
-use crate::graphql::queries::{EventQuery, LocationQuery, OrganizerQuery};
+use crate::graphql::inputs::{EventInput, LocationInput, OrganizerInput, TagInput};
+use crate::graphql::queries::{EventQuery, LocationQuery, OrganizerQuery, TagQuery};
 use crate::models;
 
 impl IntoFieldError for GraphQLError {
@@ -73,6 +73,19 @@ impl QueryRoot {
             }
         )
     }
+
+    fn tags(context: &Context, constraints: Option<Constraints>, query: Option<TagQuery>) -> FieldResult<Vec<Tag>> {
+        let constraints = constraints.unwrap_or_default();
+
+        match query {
+            Some(query) => {
+                query
+                    .into_builder(constraints, &context.connection.0)
+                    .execute()
+            }
+            None => Tag::get(constraints, &context.connection.0)
+        }.map_err(Into::into)
+    }
 }
 
 #[juniper::object(Context = Context)]
@@ -115,6 +128,19 @@ impl MutationRoot {
         let organizer: Organizer = input.into();
 
         organizer
+            .insert(&context.connection.0)
+            .map_err(Into::into)
+    }
+
+    fn tag(context: &Context, input: TagInput) -> FieldResult<Tag> {
+        input
+            .validate()
+            .map_err(|x|
+                x.into_field_error())?;
+
+        let tag: Tag = input.into();
+
+        tag
             .insert(&context.connection.0)
             .map_err(Into::into)
     }
