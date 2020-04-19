@@ -52,18 +52,12 @@ impl Organizer {
             .first(connection)
     }
 
-    pub(crate) fn get(constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<Vec<Organizer>> {
-        organizers::table
-            .limit(constraints.limit.0)
-            .offset(constraints.offset.0)
-            .load::<Organizer>(connection)
-    }
-
     pub(crate) fn create_query_builder(constraints: Constraints, connection: &diesel::PgConnection) -> OrganizerQueryBuilder {
         OrganizerQueryBuilder {
             query: organizers::table
                 .limit(constraints.limit.0)
                 .offset(constraints.offset.0)
+                .order_by(organizers::name)
                 .into_boxed(),
             connection,
         }

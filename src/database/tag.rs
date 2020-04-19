@@ -4,8 +4,9 @@ use diesel::pg::data_types::PgTimestamp;
 use diesel::pg::Pg;
 use diesel::prelude::*;
 
-use crate::database::{Constraints, DieselResult, QueryBuilder};
+use crate::database::{Constraints, DieselResult, Event, EventTag, QueryBuilder};
 use crate::database::schema::tags::{self, *};
+use crate::models;
 
 #[derive(Clone, Debug, GraphQLObject, Identifiable, Queryable)]
 pub struct Tag {
@@ -39,24 +40,40 @@ impl<'a> TagQueryBuilder<'a> {
 impl<'a> QueryBuilder for TagQueryBuilder<'a> {
     type Item = Tag;
 
-    fn execute(self) -> DieselResult<Vec<Tag>> {
+    fn execute(self) -> DieselResult<Vec<Self::Item>> {
+        let connection = self.connection;
+
         self.query
-            .load::<Tag>(self.connection)
+            .load::<Tag>(connection)
     }
 }
 
 impl Tag {
+    pub(crate) fn into_model(self, constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<models::Tag> {
+        let events = EventTag::create_query_builder(constraints.clone(), connection)
+            .with_tag_id(self.id)
+            .execute()?
+            .into_iter()
+            .map(|event_tag|
+                Event::create_query_builder(constraints.clone(), connection)
+                    .with_id(event_tag.event_id)
+                    .execute()?
+                    .pop()
+                    .ok_or(diesel::NotFound))
+            .collect::<DieselResult<Vec<models::Event>>>()?;
+
+        Ok(models::Tag {
+            id: self.id,
+            name: self.name,
+            description: self.description,
+            events,
+        })
+    }
+
     pub(crate) fn count(connection: &diesel::PgConnection) -> DieselResult<i64> {
         tags::table
             .select(diesel::dsl::count(id))
             .first(connection)
-    }
-
-    pub(crate) fn get(constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<Vec<Tag>> {
-        tags::table
-            .limit(constraints.limit.0)
-            .offset(constraints.offset.0)
-            .load::<Tag>(connection)
     }
 
     pub(crate) fn create_query_builder(constraints: Constraints, connection: &diesel::PgConnection) -> TagQueryBuilder {
@@ -69,7 +86,7 @@ impl Tag {
         }
     }
 
-    pub(crate) fn insert(self, connection: &diesel::PgConnection) -> DieselResult<Tag> {
+    pub(crate) fn insert(self, constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<models::Tag> {
         diesel::insert_into(tags::table)
             .values(vec![(
                 name.eq(self.name),
@@ -77,6 +94,7 @@ impl Tag {
             )])
             .load::<Tag>(connection)?
             .pop()
-            .ok_or(diesel::result::Error::NotFound)
+            .ok_or(diesel::result::Error::NotFound)?
+            .into_model(constraints, connection)
     }
 }

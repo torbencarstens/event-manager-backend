@@ -96,18 +96,12 @@ impl Location {
             .first(connection)
     }
 
-    pub(crate) fn get(constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<Vec<Location>> {
-        locations::table
-            .limit(constraints.limit.0)
-            .offset(constraints.offset.0)
-            .load::<Location>(connection)
-    }
-
     pub(crate) fn create_query_builder(constraints: Constraints, connection: &diesel::PgConnection) -> LocationQueryBuilder {
         LocationQueryBuilder {
             query: locations::table
                 .limit(constraints.limit.0)
                 .offset(constraints.offset.0)
+                .order_by(locations::name)
                 .into_boxed(),
             connection,
         }

@@ -18,7 +18,7 @@ use chrono::NaiveDateTime;
 use diesel::PgConnection;
 use diesel::result::Error;
 
-use crate::database::{Constraints, DieselResult, Organizer, QueryBuilder, Tag};
+use crate::database::{Constraints, DieselResult, EventTag, Organizer, QueryBuilder, Tag};
 use crate::database::event::Event;
 use crate::database::location::Location;
 use crate::database::mock::Mockable;
@@ -45,9 +45,10 @@ pub fn mock(amount: u16, connection: &diesel::PgConnection) -> DieselResult<()> 
     let mut location_ids = vec![];
     let mut organizer_ids = vec![];
     let mut tag_ids = vec![];
+    let mut event_ids = vec![];
 
     for _ in 0..10 {
-        let tag = Tag::mock(None).unwrap().insert(connection)?;
+        let tag = Tag::mock(None).unwrap().insert(Constraints::default(), connection)?;
         tag_ids.push(tag.id);
     }
 
@@ -63,6 +64,14 @@ pub fn mock(amount: u16, connection: &diesel::PgConnection) -> DieselResult<()> 
 
     for _ in 0..amount {
         let event = Event::mock(Some(event_data.clone())).unwrap().insert(connection)?;
+        event_ids.push(event.id);
+    }
+
+    let mut event_tag_data = HashMap::new();
+    event_tag_data.insert("tags".to_string(), tag_ids);
+    for event_id in event_ids {
+        event_tag_data.insert("event_id".to_string(), vec![event_id]);
+        let event_tag = EventTag::mock(Some(event_tag_data.clone())).unwrap().insert(connection)?;
     }
 
     Ok(())

@@ -1,6 +1,6 @@
 use juniper::{FieldError, FieldResult, IntoFieldError};
 
-use crate::database::{self, Constraints, Location, Organizer, QueryBuilder, Tag};
+use crate::database::{self, Constraints, DieselResult, Location, Organizer, QueryBuilder};
 use crate::graphql::{Context, GraphQLError, MutationRoot, Pagination, QueryRoot};
 use crate::graphql::graphqli64::GraphQLi64;
 use crate::graphql::inputs::{EventInput, LocationInput, OrganizerInput, TagInput};
@@ -41,7 +41,8 @@ impl QueryRoot {
                     .into_builder(constraints, &context.connection.0)
                     .execute()
             }
-            None => Location::get(constraints, &context.connection.0)
+            None => Location::create_query_builder(constraints, &context.connection.0)
+                .execute()
         }
             .map_err(Into::into)
     }
@@ -55,7 +56,8 @@ impl QueryRoot {
                     .into_builder(constraints, &context.connection.0)
                     .execute()
             }
-            None => Organizer::get(constraints, &context.connection.0)
+            None => Organizer::create_query_builder(constraints, &context.connection.0)
+                .execute()
         }
             .map_err(Into::into)
     }
@@ -74,17 +76,27 @@ impl QueryRoot {
         )
     }
 
-    fn tags(context: &Context, constraints: Option<Constraints>, query: Option<TagQuery>) -> FieldResult<Vec<Tag>> {
+    fn tag(context: &Context, constraints: Option<Constraints>, query: Option<TagQuery>) -> FieldResult<Vec<models::Tag>> {
         let constraints = constraints.unwrap_or_default();
 
         match query {
             Some(query) => {
                 query
-                    .into_builder(constraints, &context.connection.0)
-                    .execute()
+                    .into_builder(constraints.clone(), &context.connection.0)
+                    .execute()?
+                    .into_iter()
+                    .map(|tag|
+                        database::Tag::into_model(tag, constraints.clone(), &context.connection.0))
+                    .collect::<DieselResult<Vec<models::Tag>>>()
             }
-            None => Tag::get(constraints, &context.connection.0)
-        }.map_err(Into::into)
+            None => database::Tag::create_query_builder(constraints.clone(), &context.connection.0)
+                .execute()?
+                .into_iter()
+                .map(|tag|
+                    database::Tag::into_model(tag, constraints.clone(), &context.connection.0))
+                .collect()
+        }
+            .map_err(Into::into)
     }
 }
 
@@ -132,16 +144,16 @@ impl MutationRoot {
             .map_err(Into::into)
     }
 
-    fn tag(context: &Context, input: TagInput) -> FieldResult<Tag> {
+    fn tag(context: &Context, input: TagInput) -> FieldResult<models::Tag> {
         input
             .validate()
             .map_err(|x|
                 x.into_field_error())?;
 
-        let tag: Tag = input.into();
+        let tag: database::Tag = input.into();
 
         tag
-            .insert(&context.connection.0)
+            .insert(Constraints::default(), &context.connection.0)
             .map_err(Into::into)
     }
 }

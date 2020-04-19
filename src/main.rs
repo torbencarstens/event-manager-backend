@@ -49,6 +49,7 @@ fn main() -> io::Result<()> {
     databases.insert("primary_db".to_string(), Value::from(database_config));
     extras.insert("databases".to_string(), Value::from(databases));
     config.set_extras(extras);
+    config.set_port(8001);
 
     rocket::custom(config)
         .attach(PrimaryDb::fairing())

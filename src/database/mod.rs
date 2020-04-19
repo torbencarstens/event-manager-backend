@@ -1,4 +1,5 @@
 pub(crate) use event::Event;
+pub(crate) use event_tag::EventTag;
 pub(crate) use location::Location;
 pub(crate) use organizer::Organizer;
 pub use primary::PrimaryDb;
@@ -7,6 +8,7 @@ pub(crate) use tag::Tag;
 use crate::graphql::graphqli64::GraphQLi64;
 
 pub(crate) mod event;
+pub(crate) mod event_tag;
 pub(crate) mod location;
 pub(crate) mod mock;
 pub(crate) mod organizer;
@@ -16,7 +18,7 @@ mod primary;
 
 pub(crate) type DieselResult<T> = Result<T, diesel::result::Error>;
 
-#[derive(GraphQLInputObject)]
+#[derive(Clone, GraphQLInputObject)]
 pub(crate) struct Constraints {
     pub(crate) offset: GraphQLi64,
     pub(crate) limit: GraphQLi64,

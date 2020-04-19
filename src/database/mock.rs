@@ -5,7 +5,7 @@ use chrono::{Duration, NaiveDateTime, Utc};
 use diesel::expression::helper_types::Or;
 use rand::Rng;
 
-use crate::database::{Organizer, Tag};
+use crate::database::{EventTag, Organizer, Tag};
 use crate::database::event::Event;
 use crate::database::location::Location;
 
@@ -162,6 +162,23 @@ impl Mockable for Tag {
             id: -1,
             name: random_string(16),
             description: random_optional_string(512),
+        })
+    }
+}
+
+impl Mockable for EventTag {
+    type Item = EventTag;
+
+    fn mock(extra_data: Option<HashMap<String, Vec<i32>, RandomState>>) -> Option<Self::Item> {
+        let extra_data = extra_data?;
+        let tags = extra_data.get("tags")?;
+        let tag_id: i32 = *tags.get(random_range(0, tags.len() as u8) as usize)?;
+
+        let event_id: i32 = *extra_data.get("event_id")?.get(0)?;
+
+        Some(EventTag {
+            tag_id,
+            event_id,
         })
     }
 }

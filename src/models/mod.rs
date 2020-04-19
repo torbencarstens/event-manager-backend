@@ -1,3 +1,5 @@
 pub(crate) use event::Event;
+pub(crate) use tag::Tag;
 
-mod event;
+pub(crate) mod event;
+mod tag;

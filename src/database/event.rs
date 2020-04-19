@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use diesel::query_builder::AsQuery;
 use diesel::sql_types::Text;
 
-use crate::database::{Constraints, DieselResult, Location, Organizer, QueryBuilder};
+use crate::database::{Constraints, DieselResult, EventTag, Location, Organizer, QueryBuilder, Tag};
 use crate::database::schema::events::{self, *};
 use crate::graphql::graphqli64::GraphQLi64;
 use crate::models;
@@ -117,11 +117,17 @@ impl Event {
                 .ok()?
                 .pop());
 
-        Ok(Event::from_database_join((event, location, organizer)))
+        Event::from_database_join((event, location, organizer), connection)
     }
 
-    pub(crate) fn from_database_join((event, location, organizer): (Event, Location, Option<Organizer>)) -> models::Event {
-        models::Event {
+    pub(crate) fn from_database_join((event, location, organizer): (Event, Location, Option<Organizer>), connection: &diesel::PgConnection) -> DieselResult<models::Event> {
+        let tags: Vec<models::event::InnerEventTag> = event
+            .get_tags(connection)?
+            .into_iter()
+            .map(|tag| tag.into())
+            .collect();
+
+        Ok(models::Event {
             id: event.id,
             name: event.name,
             description: event.description,
@@ -131,19 +137,35 @@ impl Event {
             currency: event.currency,
             location,
             organizer,
-        }
+            tags,
+        })
+    }
+
+    pub(crate) fn get_tags(&self, connection: &diesel::PgConnection) -> DieselResult<Vec<Tag>> {
+        EventTag::create_query_builder(Constraints::default(), connection)
+            .with_event_id(self.id)
+            .execute()?
+            .iter()
+            .map(|event_tag|
+                Tag::create_query_builder(Constraints::default(), connection)
+                    .with_id(event_tag.tag_id)
+                    .execute()?
+                    .pop()
+                    .ok_or(diesel::NotFound)
+            ).collect()
     }
 
     pub(crate) fn get(constraints: Constraints, connection: &diesel::PgConnection) -> DieselResult<Vec<models::Event>> {
-        Ok(events::table
+        events::table
             .inner_join(crate::database::schema::locations::table)
             .left_join(crate::database::schema::organizers::table)
             .limit(constraints.limit.0)
             .offset(constraints.offset.0)
             .load::<(Event, Location, Option<Organizer>)>(connection)?
             .into_iter()
-            .map(Event::from_database_join)
-            .collect())
+            .map(|tuple|
+                Event::from_database_join(tuple, connection))
+            .collect()
     }
 
     pub(crate) fn create_query_builder(constraints: Constraints, connection: &diesel::PgConnection) -> EventQueryBuilder {
