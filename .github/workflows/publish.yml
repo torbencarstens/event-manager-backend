@@ -11,7 +11,7 @@ jobs:
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u torbencarstens --password-stdin
       - name: Get the version
         id: vars
-        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+        run: echo ::set-output name=tag::$(echo ${GITHUB_SHA})
       - name: Build the tagged Docker image
         run: docker build -t docker.pkg.github.com/torbencarstens/event-manager-backend/backend:${{steps.vars.outputs.tag}}
       - name: Push the tagged Docker image
