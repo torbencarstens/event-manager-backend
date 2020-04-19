@@ -23,4 +23,4 @@ jobs:
         with:
           args: kubernetes cluster kubeconfig show torbencarstens > $GITHUB_WORKSPACE/.kubeconfig
       - name: update image tag
-        run: kubectl --kubeconfig=$HOME/.kubeconfig set image deployment event-manager event-manager=docker.pkg.github.com/torbencarstens/event-manager-backend/backend:$(echo ${GITHUB_SHA})
+        run: kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig set image deployment event-manager event-manager=docker.pkg.github.com/torbencarstens/event-manager-backend/backend:$(echo ${GITHUB_SHA})
