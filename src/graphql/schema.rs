@@ -118,7 +118,7 @@ impl MutationRoot {
             .map_err(Into::into)
     }
 
-    fn location(context: &Context, input: LocationInput) -> FieldResult<Location> {
+    fn location(context: &Context, mut input: LocationInput) -> FieldResult<Location> {
         input
             .validate()
             .map_err(|x|

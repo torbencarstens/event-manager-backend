@@ -15,9 +15,11 @@ pub struct LocationInput {
 }
 
 impl LocationInput {
-    pub(crate) fn validate(&self) -> Result<(), GraphQLError> {
+    pub(crate) fn validate(&mut self) -> Result<(), GraphQLError> {
         if let Some(website) = &self.website {
-            if url::Url::parse(website).is_err() {
+            if website.is_empty() {
+                self.website = None
+            } else if url::Url::parse(website).is_err() {
                 return Err(GraphQLError::ValidationError("`website` field contains a non parsable string.".to_string()));
             }
         }
@@ -37,6 +39,9 @@ impl LocationInput {
         }
         if self.country.is_empty() {
             error = Some("country");
+        }
+        if self.building.is_empty() {
+            self.building = None
         }
 
         if let Some(field_name) = error {
